@@ -1,5 +1,5 @@
 {
-  "name": "sidewalk-tagging",
+  "name": "osm-sidewalker",
   "version": "0.0.1",
   "engines": {
     "node": "0.10.x"
@@ -18,12 +18,12 @@
   "description": "",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mapbox/sidewalk-tagging.git"
+    "url": "git://github.com/mapbox/osm-sidewalker.git"
   },
   "author": "Mapbox",
   "license": "BSD",
   "bugs": {
-    "url": "https://github.com/mapbox/sidewalk-tagging/issues"
+    "url": "https://github.com/mapbox/osm-sidewalker/issues"
   },
-  "homepage": "https://github.com/mapbox/sidewalk-tagging"
+  "homepage": "https://github.com/mapbox/osm-sidewalker"
 }

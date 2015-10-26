@@ -3,8 +3,8 @@ var normalize = require('geojson-normalize'),
   turf = require('turf'),
   lineclip = require('lineclip'),
   tilebelt = require('tilebelt'),
-  sliceAtIntersect = require('turf-line-slice-at-intersection')
-  lineChunk = require('turf-line-chunk');
+  lineChunk = require('turf-line-chunk'),
+  sliceAtIntersect = require('turf-line-slice-at-intersection');
 
 module.exports = function (tileLayers, tile, done) {
   var osm = normalize(tileLayers.osm.osm);

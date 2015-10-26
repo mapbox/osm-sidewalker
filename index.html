@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+<script>
+$(function() {
+    mapboxgl.accessToken = 'pk.eyJ1IjoidGNxbCIsImEiOiJaSlZ6X3JZIn0.mPwXgf3BvAR4dPuBB3ypfA';
+    var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/tcql/ciftz3vmh0015tgkpfyy0rn4l', //stylesheet location
+        center: [-73.95706884246236, 40.77904734050378], // starting position
+        zoom: 14 // starting zoom
+    });
+
+    map.on('click', function (e) {
+        map.featuresAt(e.point, {radius: 5}, function (err, features) {
+            if (err) throw err;
+            var sidewalks = features.filter(function(elem) {
+                if (elem.layer.id === "sidewalks-multiregion") {
+                    return true;
+                }
+                return false;
+            });
+            if (sidewalks.length === 0) return;
+
+            var way_id = sidewalks[0].properties._osm_way_id;
+            var tooltip = new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML("<pre>"+JSON.stringify(sidewalks[0].properties, null, 2)+"</pre>" +
+                    "<button id='open_in_josm'>Open in JOSM</button>" + 
+                    "<hr />"+
+                    "<p>Note: JOSM Remote Control must <a href='http://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl#PreferencesRemoteControl'>be enabled and have HTTPS support turned on</a></p>"
+                )
+                .addTo(map);
+
+            $("#open_in_josm").on('click', function () {
+                var bounds = map.getBounds();
+                console.log(way_id)
+                openInJOSM(way_id, bounds.getWest(), bounds.getEast(), bounds.getNorth(), bounds.getSouth())
+            });
+        });
+    });
+
+
+    function openInJOSM(way_id, left, right, top, bottom) {
+        var url = "https://127.0.0.1:8112/load_and_zoom?new_layer=true&left=" + left + "&right=" + right + "&top=" + top + "&bottom=" + bottom + "&select=way" + way_id;
+   
+        window.open(url);
+    }
+});
+</script>
+
+</body>
+</html>

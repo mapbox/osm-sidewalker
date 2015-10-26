@@ -11,6 +11,7 @@
     "geojson-normalize": "0.0.0",
     "geojson-utils": "^1.1.0",
     "lineclip": "^1.1.4",
+    "lodash": "^3.10.1",
     "minimist": "^1.1.1",
     "tile-cover": "^3.0.1",
     "tile-reduce": "2.0.0",

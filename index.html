@@ -13,6 +13,7 @@
         #map { position:absolute; top:0; bottom:0; left: 0; right: 30%; }
         #sidebar { position:absolute; top:0; bottom: 0; right: 0; width: 30%; }
         #sidebar div { padding: 20px; overflow: auto;}
+        #sidebar pre { overflow: auto; max-height: 400px;}
     </style>
 </head>
 <body>
@@ -21,10 +22,22 @@
 <div id='sidebar' class='fill-navy dark'>
   <div>
     <h3 class='fancy space-bottom1 keyline-bottom'>Fixing Sidewalks</h3>
-    <span id='selected-features-count'>0</span>
-    <pre>
-    <code id='selected-features-json'></code>
-    </pre>
+    <p>
+        This tool is designed to assist in fixing sidewalk tagging in OpenStreetMap. For more on this problem, see <a href='https://www.mapbox.com/blog/mapping-sidewalks'>"Updating insufficiently mapped sidewalks in OpenStreetMap"</a>
+    </p>
+
+    <p> 
+        This project is powered by Tile Reduce, Turf and OSM QA Tiles. To contribute to mapping sidewalks, <a href='https://github.com/mapbox/mapping/issues/126'>follow along here</a>. To contribute to the sidewalk analysis Tile Reduce code, visit <a href='https://github.com/mapbox/osm-sidewalker'>the github page</a>
+    </p>
+    <hr />
+    <p>
+        Click a highlighted footway segment for information about that segment. To open an entire 
+        tile's worth of ways in JOSM, click inside the desired tile but not on a highlighted footway.
+    </p>
+    <hr />
+    Unique Ways in selection: <span id='selected-features-count'>0</span><br />
+    Way Ids: <br />
+    <pre><code id='selected-features-json'></code></pre>
   </div>
 </div>
 <script src='index.build.js'></script>

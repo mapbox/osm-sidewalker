@@ -1,4 +1,5 @@
 var tilebelt = require('tilebelt');
+var _ = require('lodash');
 
 mapboxgl.accessToken = 'pk.eyJ1IjoidGNxbCIsImEiOiJaSlZ6X3JZIn0.mPwXgf3BvAR4dPuBB3ypfA';
 
@@ -13,6 +14,8 @@ module.exports = function() {
 
   map.on('style.load', function () {
     var currTile = [];
+    var selectedWays = [];
+
     var selectedTileSource = new mapboxgl.GeoJSONSource({
       data: {
         "type": "Feature", 
@@ -39,47 +42,67 @@ module.exports = function() {
     });
 
 
-        map.on('mousemove', function (e) {
-          var tile = tilebelt.pointToTile(e.lngLat.lng, e.lngLat.lat, 15);
+    map.on('mousemove', function (e) {
+      var tile = tilebelt.pointToTile(e.lngLat.lng, e.lngLat.lat, 15);
 
-          if (!tilebelt.tilesEqual(tile, currTile)) {
-            currTile = tile.slice();
-            tile = tilebelt.tileToGeoJSON(tile); 
+      if (!tilebelt.tilesEqual(tile, currTile)) {
+        currTile = tile.slice();
+        tile = tilebelt.tileToGeoJSON(tile); 
 
-            selectedTileSource.setData(tile);
-            
-            var bbox = tilebelt.tileToBBOX(currTile);
-            var pxbbox = [map.project([bbox[0], bbox[1]]), map.project([bbox[2], bbox[3]])];
+        selectedTileSource.setData(tile);
+        
+        var bbox = tilebelt.tileToBBOX(currTile);
+        var pxbbox = [map.project([bbox[0], bbox[1]]), map.project([bbox[2], bbox[3]])];
 
-            map.featuresIn(pxbbox, {layer: 'sidewalks-multiregion'}, function (err, selectedFeatures) {
-              console.log(selectedFeatures.length)
-              $("#selected-features-count").text(selectedFeatures.length);
-              $("#selected-features-json").text(JSON.stringify(selectedFeatures, null, 2));
-            });
-          }
+        map.featuresIn(pxbbox, {layer: 'sidewalks-multiregion'}, function (err, features) {
+          var selectedFeatures = features.filter(function(elem) {
+            return elem.layer.id === 'sidewalks-multiregion'
+          });
+          var wayIds = selectedFeatures.map(function (elem) {
+            return elem.properties._osm_way_id;
+          });
+          selectedWays = _.uniq(wayIds);
+
+          $("#selected-features-count").text(selectedWays.length);
+          $("#selected-features-json").text(JSON.stringify(selectedWays, null, 2));
         });
+      }
+    });
 
 
     map.on('click', function (e) {
       map.featuresAt(e.point, {radius: 5, layer: 'sidewalks-multiregion'}, function (err, sidewalks) {
         if (err) throw err;
-  
-        if (sidewalks.length === 0) return;
+        console.log(selectedWays)
+        if (selectedWays.length === 0) return;
+ 
+        var btnHtml = "<button id='open_in_josm'>Open in JOSM</button>" + 
+          "<hr />" + 
+          "<p>Note: JOSM Remote Control must <a href='http://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl#PreferencesRemoteControl'>be enabled and have HTTPS support turned on</a></p>"
 
-        var way_id = sidewalks[0].properties._osm_way_id;
+
         var tooltip = new mapboxgl.Popup()
           .setLngLat(e.lngLat)
-          .setHTML("<pre>"+JSON.stringify(sidewalks[0].properties, null, 2)+"</pre>" +
-            "<button id='open_in_josm'>Open in JOSM</button>" + 
-            "<hr />"+
-            "<p>Note: JOSM Remote Control must <a href='http://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl#PreferencesRemoteControl'>be enabled and have HTTPS support turned on</a></p>"
-          )
-          .addTo(map);
+
+        if (sidewalks.length === 0) {
+          tooltip
+            .setHTML("<p>This tile has "+selectedWays.length+" unique footways to edit</p>" + btnHtml)
+            .addTo(map);
+       
+          var ways = selectedWays.slice();
+          var bounds = tilebelt.tileToBBOX(currTile);
+
+        } else {
+          var ways = [sidewalks[0].properties._osm_way_id];
+          var bounds = map.getBounds();
+          bounds = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+          tooltip
+            .setHTML("<pre>" + JSON.stringify(sidewalks[0].properties, null, 2) + "</pre>" + btnHtml)
+            .addTo(map);
+        }
 
         $("#open_in_josm").on('click', function () {
-          var bounds = map.getBounds();
-          console.log(way_id)
-          openInJOSM(way_id, bounds.getWest(), bounds.getEast(), bounds.getNorth(), bounds.getSouth())
+          openInJOSM(ways, bounds);
         });
       });
     });
@@ -87,7 +110,14 @@ module.exports = function() {
 };
 
 
-function openInJOSM(way_id, left, right, top, bottom) {
-  var url = "https://127.0.0.1:8112/load_and_zoom?new_layer=true&left=" + left + "&right=" + right + "&top=" + top + "&bottom=" + bottom + "&select=way" + way_id;
+function openInJOSM(ways, bounds) {
+  var left = bounds[0],
+    bottom = bounds[1],
+    right = bounds[2],
+    top = bounds[3];
+  var url = "https://127.0.0.1:8112/load_and_zoom?new_layer=true&left=" + left + "&right=" + right + "&top=" + top + "&bottom=" + bottom + "&select=";
+  ways.forEach(function(id) {
+    url += "way"+id+","
+  });
   window.open(url);
 }

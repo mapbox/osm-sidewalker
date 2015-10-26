@@ -16,8 +16,12 @@ module.exports = function() {
     var currTile = [];
     var selectedTileSource = new mapboxgl.GeoJSONSource({
       data: {
-         "type": "FeatureCollection",
-         "features": []
+        "type": "Feature", 
+        "properties": {}, 
+        "geometry": {
+          "type": "Point", 
+          "coordinates": [0,0]
+        }
       }
     });
     map.addSource('selected-tile', selectedTileSource);
@@ -35,24 +39,27 @@ module.exports = function() {
         }
     });
 
-    map.on('mousemove', function (e) {
-      var tile = tilebelt.pointToTile(e.lngLat.lng, e.lngLat.lat, 15);
 
-      if (!tilebelt.tilesEqual(tile, currTile)) {
-        currTile = tile.slice();
-        tile = tilebelt.tileToGeoJSON(tile); 
-        selectedTileSource.setData(tile);
-        
-        var bbox = tilebelt.tileToBBOX(currTile);
-        var pxbbox = [map.project([bbox[0], bbox[1]]), map.project([bbox[2], bbox[3]])];
+        map.on('mousemove', function (e) {
+          var tile = tilebelt.pointToTile(e.lngLat.lng, e.lngLat.lat, 15);
 
-        map.featuresIn(pxbbox, {layer: 'sidewalks-multiregion'}, function (err, layers) {
-          console.log(layers.length)
-          $("#selected-features-count").text(selectedFeatures.length);
-          $("#selected-features-json").text(JSON.stringify(layers, null, 2));
+          if (!tilebelt.tilesEqual(tile, currTile)) {
+            currTile = tile.slice();
+            tile = tilebelt.tileToGeoJSON(tile); 
+
+            selectedTileSource.setData(tile);
+            
+            var bbox = tilebelt.tileToBBOX(currTile);
+            var pxbbox = [map.project([bbox[0], bbox[1]]), map.project([bbox[2], bbox[3]])];
+
+            map.featuresIn(pxbbox, {layer: 'sidewalks-multiregion'}, function (err, selectedFeatures) {
+              console.log(selectedFeatures.length)
+              $("#selected-features-count").text(selectedFeatures.length);
+              $("#selected-features-json").text(JSON.stringify(selectedFeatures, null, 2));
+            });
+          }
         });
-      }
-    });
+
 
     map.on('click', function (e) {
       map.featuresAt(e.point, {radius: 5, layer: 'sidewalks-multiregion'}, function (err, sidewalks) {

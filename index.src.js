@@ -58,10 +58,13 @@ module.exports = function() {
       map.featuresAt(e.point, {radius: 5, layer: 'untagged-sidewalks'}, function (err, sidewalks) {
         if (err) throw err;
 
-        var btnHtml = "<button id='open_in_josm'>Open in JOSM</button>" + 
+        var josmHtml = "<button id='open_in_josm'>Open in JOSM</button>" + 
           "<hr />" + 
-          "<p>Note: JOSM Remote Control must <a href='http://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl#PreferencesRemoteControl'>be enabled and have HTTPS support turned on</a></p>"
+          "<p>Note: JOSM Remote Control must "+
+          "<a href='http://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl#PreferencesRemoteControl'>be enabled and have HTTPS support turned on</a><br /> "+
+          "in order to Open in JOSM</p>"
 
+        var idHtml = "<button id='open_in_id'>Open in iD</button><br />"
 
         var tooltip = new mapboxgl.Popup()
           .setLngLat(e.lngLat)
@@ -73,7 +76,7 @@ module.exports = function() {
   
             var bounds = tilebelt.tileToBBOX(currTile);
             tooltip
-              .setHTML("<p>This tile has "+ways.length+" unique footways to edit</p>" + btnHtml)
+              .setHTML("<p>This tile has "+ways.length+" unique footways to edit</p>" + josmHtml)
               .addTo(map);
 
             $("#open_in_josm").on('click', function () {
@@ -85,10 +88,13 @@ module.exports = function() {
           var bounds = map.getBounds();
           bounds = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
           tooltip
-            .setHTML("<pre>" + JSON.stringify(sidewalks[0].properties, null, 2) + "</pre>" + btnHtml)
+            .setHTML("<pre>" + JSON.stringify(sidewalks[0].properties, null, 2) + "</pre>" + idHtml + josmHtml)
             .addTo(map);
           $("#open_in_josm").on('click', function () {
-              openInJOSM(ways, bounds);
+            openInJOSM(ways, bounds);
+          });
+          $("#open_in_id").on('click', function () {
+            openInId(ways, bounds);
           });
         }
       });
@@ -126,5 +132,12 @@ function openInJOSM(ways, bounds) {
   ways.forEach(function(id) {
     url += "way"+id+","
   });
+  window.open(url);
+}
+
+function openInId(ways) {
+  var ll = map.getCenter();
+  var z = Math.round(map.getZoom());
+  var url = 'http://www.openstreetmap.org/edit?editor=id&lat='+ll.lat+'&lon='+ll.lng+'&zoom=18&way='+ways[0];
   window.open(url);
 }

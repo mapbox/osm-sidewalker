@@ -137,7 +137,6 @@ function openInJOSM(ways, bounds) {
 
 function openInId(ways) {
   var ll = map.getCenter();
-  var z = Math.round(map.getZoom());
   var url = 'http://www.openstreetmap.org/edit?editor=id&lat='+ll.lat+'&lon='+ll.lng+'&zoom=18&way='+ways[0];
   window.open(url);
 }

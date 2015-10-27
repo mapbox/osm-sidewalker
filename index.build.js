@@ -7,11 +7,12 @@ mapboxgl.accessToken = 'pk.eyJ1IjoidGNxbCIsImEiOiJaSlZ6X3JZIn0.mPwXgf3BvAR4dPuBB
 module.exports = function() {
   var map = new mapboxgl.Map({
     container: 'map', // container id
-    style: 'mapbox://styles/tcql/ciftz3vmh0015tgkpfyy0rn4l', //stylesheet location
+    style: 'mapbox://styles/tcql/cig9h1ohn000ca4m9ofyq77m7',
+    //style: 'mapbox://styles/tcql/ciftz3vmh0015tgkpfyy0rn4l', //stylesheet location
     center: [-73.95706884246236, 40.77904734050378], // starting position
     zoom: 14 // starting zoom
   });
-
+  window.map = map;
 
   map.on('style.load', function () {
     var currTile = [];
@@ -55,7 +56,7 @@ module.exports = function() {
 
 
     map.on('click', function (e) {
-      map.featuresAt(e.point, {radius: 5, layer: 'sidewalks-multiregion'}, function (err, sidewalks) {
+      map.featuresAt(e.point, {radius: 5, layer: 'untagged-sidewalks'}, function (err, sidewalks) {
         if (err) throw err;
 
         var btnHtml = "<button id='open_in_josm'>Open in JOSM</button>" + 
@@ -102,11 +103,12 @@ function getWaysInTile(map, tile, callback) {
   var pxbbox = [map.project([bbox[0], bbox[1]]), map.project([bbox[2], bbox[3]])];
 
   // Note: layer filtering seems to not work, so we're manually filtering layers
-  map.featuresIn(pxbbox, {layer: 'sidewalks-multiregion'}, function (err, features) {
+  map.featuresIn(pxbbox, {layer: 'untagged-sidewalks'}, function (err, features) {
+    console.log(err, features);
     if (err) return callback(err, null);
 
     var selectedFeatures = features.filter(function(elem) {
-      return elem.layer.id === 'sidewalks-multiregion'
+      return elem.layer.id === 'untagged-sidewalks'
     });
     var wayIds = selectedFeatures.map(function (elem) {
       return elem.properties._osm_way_id;

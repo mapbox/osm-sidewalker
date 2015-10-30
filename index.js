@@ -5,25 +5,26 @@ var area = JSON.parse(argv.area);
 
  var opts = {
   zoom: 15,
-  tileLayers: [
+  bbox: area,
+  sources: [
       {
         name: 'osm',
         mbtiles: __dirname+'/data/latest.planet.mbtiles',
-        layers: ['osm']
+        //layers: ['osm']
       }
     ],
   map: __dirname + '/sidewalker.js'
 };
 
 
-tilereduce(area, opts)
+tilereduce(opts)
 .on('start', function () {
 })
 .on('reduce', function (result) {
-  result.forEach(function (elem) {
-    console.log(JSON.stringify(elem));
-  });
+  // result.forEach(function (elem) {
+  //   console.log(JSON.stringify(elem));
+  // });
 })
 .on('error', function (error) {
   throw error;
-}).run();
+})//.run();

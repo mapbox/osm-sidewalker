@@ -7,7 +7,12 @@ var normalize = require('geojson-normalize'),
   sliceAtIntersect = require('turf-line-slice-at-intersection');
 
 module.exports = function (tileLayers, tile, done) {
-  var osm = normalize(tileLayers.osm.osm);
+  var osm = turf.featurecollection([]);
+
+  for (var i = 0; i < tileLayers.osm.osm.length; i++) {
+    osm.features.push(tileLayers.osm.osm.feature(i).toGeoJSON(tile[0], tile[1], tile[2]))
+  }
+
   tile = tilebelt.tileToBBOX(tile);
 
   var footways = filterAndClipFootways(osm, tile),
@@ -46,7 +51,8 @@ module.exports = function (tileLayers, tile, done) {
             seg.properties['_osm_way_id'] = footways[f].properties._osm_way_id;
             seg.properties['proposed:footway'] = 'sidewalk';
             seg.properties['proposed:associatedStreet'] = road.properties.name;
-            proposals.push(seg);
+            //proposals.push(seg);
+            console.log(JSON.stringify(seg));
           }
         });
       });

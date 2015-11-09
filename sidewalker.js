@@ -56,7 +56,6 @@ module.exports = function (tileLayers, tile, done) {
             seg.properties['_osm_way_id'] = footways[f].properties._osm_way_id;
             seg.properties['proposed:footway'] = 'sidewalk';
             seg.properties['proposed:associatedStreet'] = road.properties.name;
-            //proposals.push(seg);
             console.log(JSON.stringify(seg));
           }
         });
@@ -91,7 +90,7 @@ function filterAndClipFootways(osm, tile) {
     if (ft.properties.highway === 'footway' 
       && ft.properties.footway !== 'sidewalk' 
       && ft.properties.footway !== 'crossing'
-      //&& (!ft.properties.surface || keepSurfaces.indexOf(ft.properties.surface) > -1)
+      && (!ft.properties.surface || keepSurfaces.indexOf(ft.properties.surface) > -1)
     ) {
       features.push(ft.toGeoJSON(tile[0], tile[1], tile[2]));
     }

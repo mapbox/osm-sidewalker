@@ -4,12 +4,12 @@ var tilereduce = require('tile-reduce'),
 var area = JSON.parse(argv.area);
 
  var opts = {
-  zoom: 15,
+  zoom: 12,
   bbox: area,
   sources: [
       {
         name: 'osm',
-        mbtiles: __dirname+'/data/latest.planet.mbtiles',
+        mbtiles: __dirname+'/data/latest.planet-z12.mbtiles',
         //layers: ['osm']
       }
     ],

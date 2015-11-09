@@ -1,7 +1,6 @@
 var normalize = require('geojson-normalize'),
   gju = require('geojson-utils'),
   turf = require('turf'),
-  lineclip = require('lineclip'),
   tilebelt = require('tilebelt'),
   lineChunk = require('turf-line-chunk'),
   sliceAtIntersect = require('turf-line-slice-at-intersection'),
@@ -127,10 +126,9 @@ function filterAndClipRoads(osm, tile) {
 }
 
 /**
- * Clips line geometries against the bbox and normalizes to linestrings
+ * normalizes the input features to linestrings
  */
 function clipNormalize(features, tile) {
-  var bbox = tilebelt.tileToBBOX(tile);
   var newLines = [];
 
   for (var i = 0; i < features.length; i++) {
@@ -139,10 +137,7 @@ function clipNormalize(features, tile) {
       [features[i].geometry.coordinates];
 
     for (var c = 0; c < coords.length; c++) {
-      var lines = lineclip(coords[c], bbox);
-      for (var s = 0; s < lines.length; s++) {
-        newLines.push(turf.linestring(lines[s], features[i].properties));
-      }
+      newLines.push(turf.linestring(coords[c], features[i].properties));
     }
   }
   

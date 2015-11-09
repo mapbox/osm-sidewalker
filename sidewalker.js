@@ -137,6 +137,9 @@ function clipNormalize(features, tile) {
       [features[i].geometry.coordinates];
 
     for (var c = 0; c < coords.length; c++) {
+      // Certain erroneous linestrings are present in the ways data. Possibly an artifact
+      // of tile clippingice
+      if (coords[c].length > 0 && typeof coords[c][0] === 'number') continue;
       newLines.push(turf.linestring(coords[c], features[i].properties));
     }
   }

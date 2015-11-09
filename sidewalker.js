@@ -39,7 +39,12 @@ module.exports = function (tileLayers, tile, done) {
         var bisectors = buildBisectors(seg);
         var isMatched = false;
 
-        roads.forEach(function (road) {
+        var bisectBox = turf.extent(turf.featurecollection(bisectors));
+        var maybeCollides = roadIndex.search(bisectBox);
+
+        maybeCollides.forEach(function (maybe) {
+          var road = roads[maybe[4].road_id];
+        
           if (isMatched || road.properties.layer !== footways[f].properties.layer) return;
 
           var matched = 0;
@@ -86,7 +91,7 @@ function filterAndClipFootways(osm, tile) {
     if (ft.properties.highway === 'footway' 
       && ft.properties.footway !== 'sidewalk' 
       && ft.properties.footway !== 'crossing'
-      && (!ft.properties.surface || keepSurfaces.indexOf(ft.properties.surface) > -1)
+      //&& (!ft.properties.surface || keepSurfaces.indexOf(ft.properties.surface) > -1)
     ) {
       features.push(ft.toGeoJSON(tile[0], tile[1], tile[2]));
     }

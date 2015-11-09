@@ -9,6 +9,7 @@
     "geojson-utils": "^1.1.0",
     "lineclip": "^1.1.4",
     "minimist": "^1.1.1",
+    "rbush": "^1.4.1",
     "tile-reduce": "mapbox/tile-reduce#nextgen",
     "tilebelt": "^0.7.1",
     "turf": "2.0.2",

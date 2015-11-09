@@ -4,23 +4,23 @@ var normalize = require('geojson-normalize'),
   lineclip = require('lineclip'),
   tilebelt = require('tilebelt'),
   lineChunk = require('turf-line-chunk'),
-  sliceAtIntersect = require('turf-line-slice-at-intersection');
+  sliceAtIntersect = require('turf-line-slice-at-intersection'),
+  rbush = require('rbush');
 
 module.exports = function (tileLayers, tile, done) {
-  var osm = turf.featurecollection([]);
 
-  for (var i = 0; i < tileLayers.osm.osm.length; i++) {
-    osm.features.push(tileLayers.osm.osm.feature(i).toGeoJSON(tile[0], tile[1], tile[2]))
+  var footways = filterAndClipFootways(tileLayers.osm.osm, tile),
+    roads = filterAndClipRoads(tileLayers.osm.osm, tile),
+    proposals = [];
+    
+  var roadIndex = rbush();
+
+  for(var r = 0; r < roads.length; r++) {
+    roadIndex.insert(turf.extent(roads[r]).concat({road_id: r}));
   }
 
-  tile = tilebelt.tileToBBOX(tile);
-
-  var footways = filterAndClipFootways(osm, tile),
-    roads = filterAndClipRoads(osm, tile),
-    proposals = [];
-
   for (var f = 0; f < footways.length; f++) {
-    var segments = sliceAtIntersect(footways[f], turf.featurecollection(roads));
+    var segments = sliceAtIntersect(footways[f], findProbablyIntersects(footways[f], roadIndex, roads));
 
     // Find which of the remaining segments stay close to a road (should be a sidewalk)
     segments.features.forEach(function (segment) {
@@ -35,7 +35,7 @@ module.exports = function (tileLayers, tile, done) {
         if (turf.lineDistance(seg, 'miles') <= 150/5280) return;
         
         // Get bisectors fo this segment, and match it against 
-        // each road.
+        // each road. 
         var bisectors = buildBisectors(seg);
         var isMatched = false;
 
@@ -67,13 +67,30 @@ module.exports = function (tileLayers, tile, done) {
  * Generates array of potentially erroneous footways
  */
 function filterAndClipFootways(osm, tile) {
-  // Grab all footways missing footway=[sidewalk, crossing]
-  var features = osm.features.filter(function (ft) {
-    if (ft.properties.highway === 'footway' && ft.properties.footway !== 'sidewalk' && ft.properties.footway !== 'crossing') {
-      return true;
+  var features = [];
+
+  var keepSurfaces = [
+    'paved',
+    'concrete',
+    'asphalt',
+    'concrete:plates',
+    'cobblestone',
+    'cobblestone:flattened',
+    'sett',
+  ];
+
+  for (var i = 0; i < osm.length; i++) {
+    var ft = osm.feature(i);
+    // Grab all footways missing footway=[sidewalk, crossing].
+    // Exclude surfaces not in our keep list
+    if (ft.properties.highway === 'footway' 
+      && ft.properties.footway !== 'sidewalk' 
+      && ft.properties.footway !== 'crossing'
+      && (!ft.properties.surface || keepSurfaces.indexOf(ft.properties.surface) > -1)
+    ) {
+      features.push(ft.toGeoJSON(tile[0], tile[1], tile[2]));
     }
-    return false;
-  });
+  }
 
   return clipNormalize(features, tile);
 }
@@ -93,10 +110,14 @@ function filterAndClipRoads(osm, tile) {
     'road',
   ];
 
-  var features = osm.features.filter(function (ft) {
-    if (roadTypes.indexOf(ft.properties.highway) > -1) return true;
-    return false;
-  });
+  var features = [];
+  for (var i = 0; i < osm.length; i++) {
+    var ft = osm.feature(i);
+    // Grab all footways missing footway=[sidewalk, crossing]
+    if (roadTypes.indexOf(ft.properties.highway) > -1) {
+      features.push(ft.toGeoJSON(tile[0], tile[1], tile[2]));
+    }
+  }
 
   return clipNormalize(features, tile);
 }
@@ -105,6 +126,7 @@ function filterAndClipRoads(osm, tile) {
  * Clips line geometries against the bbox and normalizes to linestrings
  */
 function clipNormalize(features, tile) {
+  var bbox = tilebelt.tileToBBOX(tile);
   var newLines = [];
 
   for (var i = 0; i < features.length; i++) {
@@ -113,7 +135,7 @@ function clipNormalize(features, tile) {
       [features[i].geometry.coordinates];
 
     for (var c = 0; c < coords.length; c++) {
-      var lines = lineclip(coords[c], tile);
+      var lines = lineclip(coords[c], bbox);
       for (var s = 0; s < lines.length; s++) {
         newLines.push(turf.linestring(lines[s], features[i].properties));
       }
@@ -146,3 +168,21 @@ function buildBisectors(footwaySegment) {
 
   return bisectors;
 }
+
+/**
+ * Using our rbush index, find which roads probably intersect the sidewalk
+ */
+function findProbablyIntersects(footway, roadIndex, roads) {
+  var extent = turf.extent(footway);
+
+  var colliding = roadIndex.search(extent);
+  var fc = [];
+
+
+  for (var i = 0; i < colliding.length; i++) {
+    fc.push(roads[colliding[i][4].road_id])
+  }
+
+  return turf.featurecollection(fc);
+}
+

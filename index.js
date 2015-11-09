@@ -18,13 +18,6 @@ var area = JSON.parse(argv.area);
 
 
 tilereduce(opts)
-.on('start', function () {
-})
-.on('reduce', function (result) {
-  // result.forEach(function (elem) {
-  //   console.log(JSON.stringify(elem));
-  // });
-})
 .on('error', function (error) {
   throw error;
-})//.run();
+})

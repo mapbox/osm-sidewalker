@@ -6,7 +6,7 @@ var normalize = require('geojson-normalize'),
   sliceAtIntersect = require('turf-line-slice-at-intersection'),
   rbush = require('rbush');
 
-module.exports = function (tileLayers, tile, done) {
+module.exports = function (tileLayers, tile, writeData, done) {
 
   var footways = filterAndClipFootways(tileLayers.osm.osm, tile),
     roads = filterAndClipRoads(tileLayers.osm.osm, tile),
@@ -29,7 +29,7 @@ module.exports = function (tileLayers, tile, done) {
       if (turf.lineDistance(segment, 'miles') <= 10/5280) return;
 
       var segmented = lineChunk(segment, 250/5280, 'miles');
-
+      
       segmented.features.forEach(function (seg) {
         if (turf.lineDistance(seg, 'miles') <= 150/5280) return;
         
@@ -55,7 +55,7 @@ module.exports = function (tileLayers, tile, done) {
             seg.properties['_osm_way_id'] = footways[f].properties._osm_way_id;
             seg.properties['proposed:footway'] = 'sidewalk';
             seg.properties['proposed:associatedStreet'] = road.properties.name;
-            console.log(JSON.stringify(seg));
+            writeData(JSON.stringify(seg)+'\n');
           }
         });
       });
@@ -129,9 +129,12 @@ function filterAndClipRoads(osm, tile) {
  * normalizes the input features to linestrings
  */
 function clipNormalize(features, tile) {
+
   var newLines = [];
 
   for (var i = 0; i < features.length; i++) {
+    if (features[i].geometry.type !== 'LineString' && features[i].geometry.type !== 'MultiLineString') continue;
+    
     var coords = (features[i].geometry.type === 'MultiLineString') ? 
       features[i].geometry.coordinates :
       [features[i].geometry.coordinates];

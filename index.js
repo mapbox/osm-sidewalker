@@ -1,16 +1,14 @@
 var tilereduce = require('tile-reduce'),
-  argv = require('minimist')(process.argv.slice(2));
-
-var area = JSON.parse(argv.area);
+  path = require('path');
 
  var opts = {
   zoom: 12,
-  bbox: area,
+  sourceCover: 'osm',
   sources: [
       {
         name: 'osm',
-        mbtiles: __dirname+'/data/latest.planet-z12.mbtiles',
-        //layers: ['osm']
+        mbtiles: path.join(__dirname, '../../../data/latest.planet-z12.mbtiles'),
+        layers: ['osm']
       }
     ],
   map: __dirname + '/sidewalker.js'

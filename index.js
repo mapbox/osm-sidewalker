@@ -1,14 +1,13 @@
 var tilereduce = require('tile-reduce'),
-  argv = require('minimist')(process.argv.slice(2));
-
-var area = JSON.parse(argv.area);
+  path = require('path');
 
  var opts = {
-  zoom: 15,
-  tileLayers: [
+  zoom: 12,
+  sourceCover: 'osm',
+  sources: [
       {
         name: 'osm',
-        mbtiles: __dirname+'/data/latest.planet.mbtiles',
+        mbtiles: path.join(__dirname, '../../../data/latest.planet-z12.mbtiles'),
         layers: ['osm']
       }
     ],
@@ -16,14 +15,7 @@ var area = JSON.parse(argv.area);
 };
 
 
-tilereduce(area, opts)
-.on('start', function () {
-})
-.on('reduce', function (result) {
-  result.forEach(function (elem) {
-    console.log(JSON.stringify(elem));
-  });
-})
+tilereduce(opts)
 .on('error', function (error) {
   throw error;
-}).run();
+})

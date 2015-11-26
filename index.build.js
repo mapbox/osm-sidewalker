@@ -13,6 +13,9 @@ module.exports = function() {
     zoom: 14 // starting zoom
   });
   window.map = map;
+  
+  // disable map rotation to avoid breaking JOSM remote control
+  map.dragRotate.disable();
 
   map.on('style.load', function () {
     var currTile = [];

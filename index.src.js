@@ -8,8 +8,8 @@ module.exports = function() {
     container: 'map', // container id
     style: 'mapbox://styles/tcql/cig9h1ohn000ca4m9ofyq77m7',
     //style: 'mapbox://styles/tcql/ciftz3vmh0015tgkpfyy0rn4l', //stylesheet location
-    center: [-73.95706884246236, 40.77904734050378], // starting position
-    zoom: 14 // starting zoom
+    center: [-98.9, 39.06], // starting position
+    zoom: 5 // starting zoom
   });
   window.map = map;
 
@@ -19,10 +19,10 @@ module.exports = function() {
 
     var selectedTileSource = new mapboxgl.GeoJSONSource({
       data: {
-        "type": "Feature", 
-        "properties": {}, 
+        "type": "Feature",
+        "properties": {},
         "geometry": {
-          "type": "Point", 
+          "type": "Point",
           "coordinates": [0,0]
         }
       }
@@ -48,7 +48,7 @@ module.exports = function() {
 
       if (!tilebelt.tilesEqual(tile, currTile)) {
         currTile = tile.slice();
-        tile = tilebelt.tileToGeoJSON(tile); 
+        tile = tilebelt.tileToGeoJSON(tile);
         selectedTileSource.setData(tile);
       }
     });
@@ -58,8 +58,8 @@ module.exports = function() {
       map.featuresAt(e.point, {radius: 5, layer: 'untagged-sidewalks'}, function (err, sidewalks) {
         if (err) throw err;
 
-        var josmHtml = "<button id='open_in_josm'>Open in JOSM</button>" + 
-          "<hr />" + 
+        var josmHtml = "<button id='open_in_josm'>Open in JOSM</button>" +
+          "<hr />" +
           "<p>Note: JOSM Remote Control must "+
           "<a href='http://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl#PreferencesRemoteControl'>be enabled and have HTTPS support turned on</a><br /> "+
           "in order to Open in JOSM</p>"
@@ -73,7 +73,7 @@ module.exports = function() {
 
           getWaysInTile(map, currTile, function (err, ways) {
             if (err || ways.length === 0) return;
-  
+
             var bounds = tilebelt.tileToBBOX(currTile);
             tooltip
               .setHTML("<p>This tile has "+ways.length+" unique footways to edit</p>" + josmHtml)
@@ -103,7 +103,7 @@ module.exports = function() {
 };
 
 
-function getWaysInTile(map, tile, callback) { 
+function getWaysInTile(map, tile, callback) {
   var bbox = tilebelt.tileToBBOX(tile);
   var pxbbox = [map.project([bbox[0], bbox[1]]), map.project([bbox[2], bbox[3]])];
 

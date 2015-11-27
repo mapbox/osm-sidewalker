@@ -137,7 +137,7 @@ function openInJOSM(ways, bounds) {
     bottom = bounds[1],
     right = bounds[2],
     top = bounds[3];
-  var url = "https://127.0.0.1:8112/load_and_zoom?new_layer=true&left=" + left + "&right=" + right + "&top=" + top + "&bottom=" + bottom + "&select=";
+  var url = "http://127.0.0.1:8111/load_and_zoom?new_layer=true&left=" + left + "&right=" + right + "&top=" + top + "&bottom=" + bottom + "&select=";
   ways.forEach(function(id) {
     url += "way" + id + ","
   });

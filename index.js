@@ -7,8 +7,9 @@ var tilereduce = require('tile-reduce'),
   sources: [
       {
         name: 'osm',
-        mbtiles: path.join(__dirname, '../../../data/latest.planet-z12.mbtiles'),
-        layers: ['osm']
+        mbtiles: path.join(__dirname, 'data/latest.planet.mbtiles'),
+        layers: ['osm'],
+	      raw: true
       }
     ],
   map: __dirname + '/sidewalker.js'

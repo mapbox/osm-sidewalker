@@ -84,11 +84,15 @@ function filterAndClipFootways(osm, tile) {
 
   for (var i = 0; i < osm.length; i++) {
     var ft = osm.feature(i);
+
     // Grab all footways missing footway=[sidewalk, crossing].
-    // Exclude surfaces not in our keep list
+    // Exclude surfaces not in our keep list, tunnels and areas.
     if (ft.properties.highway === 'footway' 
       && ft.properties.footway !== 'sidewalk' 
       && ft.properties.footway !== 'crossing'
+      && ft.properties.area !== 'yes'
+      && !ft.properties['area:highway'] 
+      && ft.properties.tunnel !== 'yes'
       && (!ft.properties.surface || keepSurfaces.indexOf(ft.properties.surface) > -1)
     ) {
       features.push(ft.toGeoJSON(tile[0], tile[1], tile[2]));

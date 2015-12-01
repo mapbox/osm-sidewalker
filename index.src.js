@@ -9,7 +9,9 @@ module.exports = function() {
     style: 'mapbox://styles/tcql/cig9h1ohn000ca4m9ofyq77m7',
     //style: 'mapbox://styles/tcql/ciftz3vmh0015tgkpfyy0rn4l', //stylesheet location
     center: [-98.9, 39.06], // starting position
-    zoom: 4 // starting zoom
+    zoom: 4, // starting zoom
+    hash: true
+      
   });
   window.map = map;
 

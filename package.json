@@ -1,30 +1,30 @@
 {
-  "name": "osm-sidewalker",
-  "version": "0.0.1",
+  "license": "BSD-2-Clause", 
   "engines": {
     "node": "0.10.x"
-  },
-  "dependencies": {
-    "geojson-normalize": "0.0.0",
-    "geojson-utils": "^1.1.0",
-    "lineclip": "^1.1.4",
-    "minimist": "^1.1.1",
-    "rbush": "^1.4.1",
-    "tile-reduce": "^3.0.1",
-    "tilebelt": "^0.7.1",
-    "turf": "2.0.2",
-    "turf-line-chunk": "^1.0.0",
-    "turf-line-slice-at-intersection": "^1.0.0"
-  },
-  "description": "",
+  }, 
+  "version": "0.0.1", 
   "repository": {
-    "type": "git",
-    "url": "git://github.com/mapbox/osm-sidewalker.git"
-  },
-  "author": "Mapbox",
-  "license": "BSD",
+    "url": "git://github.com/mapbox/osm-sidewalker.git", 
+    "type": "git"
+  }, 
+  "author": "Mapbox", 
+  "description": "", 
   "bugs": {
     "url": "https://github.com/mapbox/osm-sidewalker/issues"
-  },
-  "homepage": "https://github.com/mapbox/osm-sidewalker"
+  }, 
+  "dependencies": {
+    "geojson-normalize": "0.0.0", 
+    "minimist": "^1.1.1", 
+    "turf-line-chunk": "^1.0.0", 
+    "lineclip": "^1.1.4", 
+    "tile-reduce": "^3.0.1", 
+    "rbush": "^1.4.1", 
+    "turf-line-slice-at-intersection": "^1.0.0", 
+    "tilebelt": "^0.7.1", 
+    "geojson-utils": "^1.1.0", 
+    "turf": "2.0.2"
+  }, 
+  "homepage": "https://github.com/mapbox/osm-sidewalker", 
+  "name": "osm-sidewalker"
 }
